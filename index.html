@@ -70,20 +70,19 @@ img{display:block}
 .hero-chip-num{font-size:14px;font-weight:700;color:#fff}
 .hero-chip-label{font-size:11px;color:rgba(255,255,255,.7)}
 .stats-row{display:flex;align-items:center;justify-content:space-between;padding:8px 20px 4px}
+.folder-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:8px 12px}
 .folder-card{
-  display:flex;align-items:center;gap:14px;
-  padding:12px 16px;margin:0 16px 10px;
-  background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
-  cursor:pointer;transition:transform .1s,box-shadow .1s;
+  display:flex;flex-direction:column;
+  background:var(--card);border-radius:var(--radius-sm);box-shadow:var(--shadow);
+  cursor:pointer;transition:transform .12s,box-shadow .12s;overflow:hidden;
 }
-.folder-card:active{transform:scale(.98);box-shadow:none}
-.folder-thumb{width:62px;height:62px;border-radius:var(--radius-sm);overflow:hidden;flex-shrink:0;background:#0d2237}
+.folder-card:active{transform:scale(.95);box-shadow:none}
+.folder-thumb{width:100%;aspect-ratio:1/1;background:#0d2237;overflow:hidden}
 .folder-thumb img{width:100%;height:100%;object-fit:cover}
-.folder-thumb-initial{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2))}
-.folder-chevron{color:var(--t4);flex-shrink:0;display:flex}
-.folder-info{flex:1;min-width:0}
-.folder-name{font-size:16px;font-weight:600;color:var(--t1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.folder-meta{font-size:13px;color:var(--t3);margin-top:2px}
+.folder-thumb-initial{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.folder-info{padding:7px 8px 9px}
+.folder-name{font-size:12px;font-weight:600;color:var(--t1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.folder-meta{font-size:10px;color:var(--t3);margin-top:2px}
 .song-row{display:flex;align-items:center;gap:12px;padding:9px 16px;cursor:pointer;transition:background .1s}
 .song-row:active{background:rgba(0,0,0,.04)}
 .song-row.playing{background:rgba(255,111,0,.06)}
@@ -277,7 +276,7 @@ function scrLibrary(){
     </div>
     <div class="scroll-area" id="lib-content">${q?scrSearch(filtered,songs):scrFolders()}</div>`;}
 function scrEmpty(){return`<div class="center-fill" style="padding-top:max(env(safe-area-inset-top),20px)"><img src="${ICON}" style="width:100px;height:100px;border-radius:28px;box-shadow:0 10px 32px rgba(0,0,0,.2)" alt="Raaag"><div><div style="font-size:30px;font-weight:800;color:var(--accent);letter-spacing:-1px">Raaag</div><div style="font-size:14px;color:var(--t3);margin-top:5px">Indian Classical Music Player</div></div><button class="btn-primary" data-action="import-music" style="width:100%;max-width:280px">${I.plus} <span>Add Music Folder</span></button><div style="font-size:13px;color:var(--t3);max-width:240px;line-height:1.5">Select your Music folder &mdash; artists and albums import automatically</div></div>`;}
-function scrFolders(){const artists=S.artists.slice().sort((a,b)=>a.name.localeCompare(b.name));const total=S.songs.length;return`<div><div class="stats-row"><span style="font-size:13px;color:var(--t3)">${artists.length} artists &middot; ${total} songs</span><button class="btn-danger" data-action="clear-library">Clear Library</button></div>${artists.map(a=>{const sc=a.albums.reduce((n,id)=>n+(S.library?.albums[id]?.songs.length||0),0);const ac=a.albums.length;const art=a.coverArt||a.albums.map(id=>S.library?.albums[id]?.coverArt).find(Boolean)||null;return`<div class="folder-card" data-action="navigate" data-screen="artist" data-id="${esc(a.id)}"><div class="folder-thumb">${art?`<img src="${esc(art)}" loading="lazy">`:`<div class="folder-thumb-initial">${esc(a.name.charAt(0).toUpperCase())}</div>`}</div><div class="folder-info"><div class="folder-name">${esc(a.name)}</div><div class="folder-meta">${ac} album${ac!==1?'s':''} &middot; ${sc} song${sc!==1?'s':''}</div></div><div class="folder-chevron">${I.chevR}</div></div>`;}).join('')}</div>`;}
+function scrFolders(){const artists=S.artists.slice().sort((a,b)=>a.name.localeCompare(b.name));const total=S.songs.length;return`<div><div class="stats-row"><span style="font-size:13px;color:var(--t3)">${artists.length} artists &middot; ${total} songs</span><button class="btn-danger" data-action="clear-library">Clear</button></div><div class="folder-grid">${artists.map(a=>{const sc=a.albums.reduce((n,id)=>n+(S.library?.albums[id]?.songs.length||0),0);const ac=a.albums.length;const art=a.coverArt||a.albums.map(id=>S.library?.albums[id]?.coverArt).find(Boolean)||null;return`<div class="folder-card" data-action="navigate" data-screen="artist" data-id="${esc(a.id)}"><div class="folder-thumb">${art?`<img src="${esc(art)}" loading="lazy">`:`<div class="folder-thumb-initial">${esc(a.name.charAt(0).toUpperCase())}</div>`}</div><div class="folder-info"><div class="folder-name">${esc(a.name)}</div><div class="folder-meta">${ac} alb &middot; ${sc} songs</div></div></div>`;}).join('')}</div></div>`;}
 function scrSearch(filtered,allSongs){return`<div><div class="stats-row"><span style="font-size:13px;color:var(--t3)">${filtered.length} result${filtered.length!==1?'s':''}</span></div>${filtered.map(s=>songRow(s,allSongs,true)).join('')}</div>`;}
 function scrNowPlaying(){const song=S.currentSong;if(!song){Nav.back();return'';}const fav=S.favorites.includes(song.id);const pct=S.duration>0?(S.currentTime/S.duration)*100:0;const repActive=S.repeatMode!=='off';const repIcon=S.repeatMode==='one'?I.rep1:I.repA;return`<div id="np-wrap">${song.coverArt?`<div class="np-bg-art" style="background-image:url('${esc(song.coverArt)}')"></div>`:''}<div class="np-bg-white"></div><div class="np-inner"><div class="np-topbar"><button class="np-chevron-btn" data-action="go-back">${I.chevL}</button><span class="np-label">Now Playing</span><button class="np-chevron-btn" data-action="navigate" data-screen="queue" style="color:var(--t3)">${I.queue}</button></div><div class="np-art-section"><div class="np-art-box">${song.coverArt?`<img src="${esc(song.coverArt)}" alt="${esc(song.title)}">`:
 `<div class="np-art-initial">${esc(song.title.charAt(0).toUpperCase())}</div>`}</div></div><div class="np-meta"><div class="np-meta-left"><div class="np-song-title">${esc(song.title)}</div><div class="np-artist">${esc(song.artist)}</div><div class="np-album-name">${esc(song.album)}</div></div><button class="np-fav-btn" data-action="toggle-favorite" data-song-id="${esc(song.id)}" style="color:${fav?'var(--accent)':'var(--t4)'}">${fav?I.heart:I.heartO}</button></div><div class="np-seek-section"><div class="progress-wrap"><div class="progress-bg"><div class="progress-fill" id="np-fill" style="width:${pct}%"></div></div><input type="range" class="seek-input" id="np-seek" min="0" max="${S.duration||1}" step="0.5" value="${S.currentTime}" data-action="seek"></div><div class="np-times"><span style="font-size:12px;color:var(--t3);font-variant-numeric:tabular-nums" id="np-cur">${fmt(S.currentTime)}</span><span style="font-size:12px;color:var(--t3);font-variant-numeric:tabular-nums" id="np-dur">${fmt(S.duration)}</span></div></div><div class="np-controls"><button class="ctrl-side${S.shuffle?' ctrl-active':''}" data-action="toggle-shuffle">${I.shuf}</button><button class="ctrl-skip" data-action="prev">${I.prev}</button><button class="ctrl-play-btn" data-action="toggle-play" id="np-play">${S.isPlaying?I.pause:I.play}</button><button class="ctrl-skip" data-action="next">${I.next}</button><button class="ctrl-side${repActive?' ctrl-active':''}" data-action="cycle-repeat">${repIcon}</button></div><div class="np-vol">${I.volL}<input type="range" class="vol" min="0" max="1" step="0.01" value="${S.volume}" data-action="set-volume" style="flex:1">${I.volH}</div></div></div>`;}
@@ -301,4 +300,4 @@ init();
 })();
 </script>
 </body>
-</html>
+</html>                                                                                         
