@@ -70,19 +70,19 @@ img{display:block}
 .hero-chip-num{font-size:14px;font-weight:700;color:#fff}
 .hero-chip-label{font-size:11px;color:rgba(255,255,255,.7)}
 .stats-row{display:flex;align-items:center;justify-content:space-between;padding:8px 20px 4px}
-.folder-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:8px 12px}
+.folder-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:6px 12px}
 .folder-card{
   display:flex;flex-direction:column;
-  background:var(--card);border-radius:var(--radius-sm);box-shadow:var(--shadow);
+  background:var(--card);border-radius:8px;box-shadow:var(--shadow);
   cursor:pointer;transition:transform .12s,box-shadow .12s;overflow:hidden;
 }
 .folder-card:active{transform:scale(.95);box-shadow:none}
-.folder-thumb{width:100%;aspect-ratio:1/1;background:#0d2237;overflow:hidden}
+.folder-thumb{width:100%;height:72px;background:#0d2237;overflow:hidden;flex-shrink:0}
 .folder-thumb img{width:100%;height:100%;object-fit:cover}
-.folder-thumb-initial{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2))}
-.folder-info{padding:7px 8px 9px}
-.folder-name{font-size:12px;font-weight:600;color:var(--t1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.folder-meta{font-size:10px;color:var(--t3);margin-top:2px}
+.folder-thumb-initial{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.folder-info{padding:5px 7px 7px}
+.folder-name{font-size:11px;font-weight:600;color:var(--t1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.folder-meta{font-size:9px;color:var(--t3);margin-top:1px}
 .song-row{display:flex;align-items:center;gap:12px;padding:9px 16px;cursor:pointer;transition:background .1s}
 .song-row:active{background:rgba(0,0,0,.04)}
 .song-row.playing{background:rgba(255,111,0,.06)}
