@@ -282,8 +282,14 @@ function scrArtist(){
   const totalSongs=albums.reduce((n,a)=>n+a.songs.length,0);
   const heroCover=artist.coverArt||albums.map(a=>a.coverArt).find(Boolean)||null;
   const realAlbums=albums.filter(a=>a.name!=='Unknown Album');
-  const looseSongs=albums.filter(a=>a.name==='Unknown Album')
+  // Songs with no album tag — show flat, no album card
+  let looseSongs=albums.filter(a=>a.name==='Unknown Album')
     .flatMap(a=>a.songs.map(id=>S.library.songs[id]).filter(Boolean));
+  // Fallback: if album lookup chain produced nothing, find songs directly by artistId
+  if(realAlbums.length===0&&looseSongs.length===0){
+    looseSongs=S.songs.filter(s=>s.artistId===artist.id);
+  }
+  const allSongs=[...looseSongs,...realAlbums.flatMap(a=>a.songs.map(id=>S.library.songs[id]).filter(Boolean))];
   return`<div style="height:100%;display:flex;flex-direction:column;background:#fff">
     <div style="position:relative;overflow:hidden;min-height:220px;flex-shrink:0">
       ${heroCover?`<div style="position:absolute;inset:-30px;background:url('${esc(heroCover)}') center/cover;filter:blur(28px) brightness(.5) saturate(1.4);transform:scale(1.15)"></div>`:'<div style="position:absolute;inset:0;background:linear-gradient(135deg,#1a2535,#0d1b28)"></div>'}
@@ -295,7 +301,7 @@ function scrArtist(){
         </div>
         <div>
           <div style="font-size:26px;font-weight:800;color:#fff;letter-spacing:-.5px;line-height:1.1">${esc(artist.name)}</div>
-          <div style="font-size:13px;color:rgba(255,255,255,.7);margin-top:4px">${realAlbums.length} album${realAlbums.length!==1?'s':''} &nbsp;·&nbsp; ${totalSongs} song${totalSongs!==1?'s':''}</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.7);margin-top:4px">${realAlbums.length} album${realAlbums.length!==1?'s':''} &nbsp;·&nbsp; ${allSongs.length} song${allSongs.length!==1?'s':''}</div>
         </div>
         <div style="display:flex;gap:10px;margin-top:4px">
           <button data-action="play-artist" data-artist-id="${esc(artist.id)}" style="display:flex;align-items:center;gap:8px;padding:10px 22px;border-radius:999px;background:var(--accent);color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(255,111,0,.4)">${I.play} Play</button>
@@ -307,16 +313,7 @@ function scrArtist(){
       ${looseSongs.length>0?`
         <div style="padding:16px 16px 4px;font-size:13px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.06em">Songs</div>
         <div style="background:#fff;border-radius:12px;margin:0 12px 12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)">
-          ${looseSongs.map((s,i)=>`<div class="song-row${S.currentSong?.id===s.id?' playing':''}" data-action="play-song" data-song-id="${esc(s.id)}" data-qids="${esc(looseSongs.map(x=>x.id).join(','))}">
-            <div style="width:28px;text-align:center;font-size:13px;color:${S.currentSong?.id===s.id?'var(--accent)':'var(--t4)'};flex-shrink:0">
-              ${S.currentSong?.id===s.id&&S.isPlaying?'<div class="eq-bars" style="display:inline-flex;gap:2px;align-items:flex-end;height:14px"><span></span><span></span><span></span></div>':`${i+1}`}
-            </div>
-            <div class="song-info">
-              <div class="song-title${S.currentSong?.id===s.id?' active':''}">${esc(s.title)}</div>
-            </div>
-            ${S.favorites.includes(s.id)?`<div style="color:var(--accent);flex-shrink:0;font-size:12px">&#9829;</div>`:''}
-            <div class="song-dur">${fmt(s.duration)}</div>
-          </div>`).join('')}
+          ${looseSongs.map(s=>songRow(s,looseSongs)).join('')}
         </div>`:''}
       ${realAlbums.length>0?`<div style="padding:${looseSongs.length>0?'4':'16'}px 16px 4px;font-size:13px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.06em">Discography</div>`:''}
       ${realAlbums.map(alb=>{
@@ -332,17 +329,7 @@ function scrArtist(){
             </div>
             <button data-action="play-album" data-album-id="${esc(alb.id)}" onclick="event.stopPropagation()" style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;border:none;cursor:pointer;flex-shrink:0;box-shadow:0 2px 8px rgba(255,111,0,.35)">${I.play}</button>
           </div>
-          ${as.map((s,i)=>`<div class="song-row${S.currentSong?.id===s.id?' playing':''}" data-action="play-song" data-song-id="${esc(s.id)}" data-qids="${esc(as.map(x=>x.id).join(','))}">
-            <div style="width:28px;text-align:center;font-size:13px;color:${S.currentSong?.id===s.id?'var(--accent)':'var(--t4)'};flex-shrink:0">
-              ${S.currentSong?.id===s.id&&S.isPlaying?'<div class="eq-bars" style="display:inline-flex;gap:2px;align-items:flex-end;height:14px"><span></span><span></span><span></span></div>':`${i+1}`}
-            </div>
-            <div class="song-info">
-              <div class="song-title${S.currentSong?.id===s.id?' active':''}">${esc(s.title)}</div>
-              ${s.artist!==artist.name?`<div class="song-sub">${esc(s.artist)}</div>`:''}
-            </div>
-            ${S.favorites.includes(s.id)?`<div style="color:var(--accent);flex-shrink:0;font-size:12px">&#9829;</div>`:''}
-            <div class="song-dur">${fmt(s.duration)}</div>
-          </div>`).join('')}
+          ${as.map(s=>songRow(s,as)).join('')}
         </div>`;
       }).join('')}
       <div style="height:24px"></div>
