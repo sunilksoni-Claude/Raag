@@ -282,9 +282,7 @@ function scrArtist(){
   const songs=S.songs;
   const totalSongs=albums.reduce((n,a)=>n+a.songs.length,0);
   const heroCover=artist.coverArt||albums.map(a=>a.coverArt).find(Boolean)||null;
-  const realAlbums=albums.filter(a=>!(a.name==='Unknown Album'&&a.songs.length===1));
-  const singles=albums.filter(a=>a.name==='Unknown Album'&&a.songs.length===1)
-    .flatMap(a=>a.songs.map(id=>S.library.songs[id]).filter(Boolean));
+  const realAlbums=albums.filter(a=>a.name!=='Unknown Album');
   return`<div style="height:100%;display:flex;flex-direction:column;background:#fff">
     <div style="position:relative;overflow:hidden;min-height:220px;flex-shrink:0">
       ${heroCover?`<div style="position:absolute;inset:-30px;background:url('${esc(heroCover)}') center/cover;filter:blur(28px) brightness(.5) saturate(1.4);transform:scale(1.15)"></div>`:'<div style="position:absolute;inset:0;background:linear-gradient(135deg,#1a2535,#0d1b28)"></div>'}
@@ -332,15 +330,7 @@ function scrArtist(){
           </div>`).join('')}
         </div>`;
       }).join('')}
-      ${singles.length>0?`
-        <div style="padding:16px 16px 4px;font-size:13px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.06em">Singles</div>
-        <div style="background:#fff;border-radius:12px;margin:0 12px 12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)">
-          ${singles.map((s,i)=>`<div class="song-row${S.currentSong?.id===s.id?' playing':''}" data-action="play-song" data-song-id="${esc(s.id)}" data-qids="${esc(singles.map(x=>x.id).join(','))}">
-            <div style="width:28px;text-align:center;font-size:13px;color:${S.currentSong?.id===s.id?'var(--accent)':'var(--t4)'};flex-shrink:0">${i+1}</div>
-            <div class="song-info"><div class="song-title${S.currentSong?.id===s.id?' active':''}">${esc(s.title)}</div></div>
-            <div class="song-dur">${fmt(s.duration)}</div>
-          </div>`).join('')}
-        </div>`:''}
+
       <div style="height:24px"></div>
     </div>
   </div>`;}
