@@ -88,18 +88,13 @@ img{display:block}
 .stats-row{display:flex;align-items:center;justify-content:space-between;padding:8px 20px 4px}
 .folder-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:6px 12px}
 .folder-card{
-  display:flex;flex-direction:column;
-  background:var(--card);border-radius:10px;box-shadow:var(--shadow);
-  cursor:pointer;transition:transform .12s,box-shadow .12s;overflow:hidden;
+  height:45px;display:flex;flex-direction:column;justify-content:center;
+  background:var(--card);border-radius:8px;box-shadow:var(--shadow);
+  padding:0 8px;cursor:pointer;transition:transform .12s,box-shadow .12s;overflow:hidden;
 }
 .folder-card:active{transform:scale(.95);box-shadow:none}
-.folder-art{width:100%;aspect-ratio:1;background:linear-gradient(135deg,var(--accent),var(--accent2));overflow:hidden;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;flex-shrink:0}
-.folder-art img{width:100%;height:100%;object-fit:cover;display:block}
-.folder-art-single img{width:100%;height:100%;object-fit:cover}
-.folder-art-init{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2))}
-.folder-info{padding:6px 8px 7px}
-.folder-name{font-size:11px;font-weight:600;color:var(--t1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.folder-meta{font-size:9px;color:var(--t3);margin-top:1px}
+.folder-name{font-size:11.5px;font-weight:600;color:var(--t1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.folder-meta{font-size:9.5px;color:var(--t3);margin-top:2px}
 .song-row{display:flex;align-items:center;gap:12px;padding:9px 16px;cursor:pointer;transition:background .1s}
 .song-row:active{background:rgba(0,0,0,.04)}
 .song-row.playing{background:rgba(255,111,0,.06)}
@@ -297,21 +292,7 @@ function scrEmpty(){return`<div class="center-fill" style="padding-top:max(env(s
 function scrFolders(){
   const artists=S.artists.slice().sort((a,b)=>a.name.localeCompare(b.name));
   const total=S.songs.length;
-  function artistCard(a){
-    const sc=a.albums.reduce((n,id)=>n+(S.library?.albums[id]?.songs.length||0),0);
-    const imgs=a.albums.map(id=>S.library?.albums[id]?.coverArt).filter(Boolean).slice(0,4);
-    const init=esc(a.name.charAt(0).toUpperCase());
-    let artHtml;
-    if(imgs.length>=2){
-      artHtml=`<div class="folder-art">${imgs.map(src=>`<img src="${esc(src)}" loading="lazy" alt="">`).join('')}</div>`;
-    } else if(imgs.length===1){
-      artHtml=`<div class="folder-art"><img src="${esc(imgs[0])}" loading="lazy" alt="" style="grid-column:1/-1;grid-row:1/-1;width:100%;height:100%;object-fit:cover"></div>`;
-    } else {
-      artHtml=`<div class="folder-art-init">${init}</div>`;
-    }
-    return`<div class="folder-card" data-action="navigate" data-screen="artist" data-id="${esc(a.id)}">${artHtml}<div class="folder-info"><div class="folder-name">${esc(a.name)}</div><div class="folder-meta">${sc} song${sc!==1?'s':''}</div></div></div>`;
-  }
-  return`<div><div class="stats-row"><span style="font-size:13px;color:var(--t3)">${artists.length} artists &middot; ${total} songs</span><button class="btn-danger" data-action="clear-library">Clear</button></div><div class="folder-grid">${artists.map(artistCard).join('')}</div></div>`;}
+  return`<div><div class="stats-row"><span style="font-size:13px;color:var(--t3)">${artists.length} artists &middot; ${total} songs</span><button class="btn-danger" data-action="clear-library">Clear</button></div><div class="folder-grid">${artists.map(a=>{const sc=a.albums.reduce((n,id)=>n+(S.library?.albums[id]?.songs.length||0),0);return`<div class="folder-card" data-action="navigate" data-screen="artist" data-id="${esc(a.id)}"><div class="folder-name">${esc(a.name)}</div><div class="folder-meta">${sc} song${sc!==1?'s':''}</div></div>`;}).join('')}</div></div>`;}
 
 function scrSearch(filtered,allSongs){return`<div><div class="stats-row"><span style="font-size:13px;color:var(--t3)">${filtered.length} result${filtered.length!==1?'s':''}</span></div>${filtered.map(s=>songRow(s,allSongs,true)).join('')}</div>`;}
 function scrNowPlaying(){const song=S.currentSong;if(!song){Nav.back();return'';}const fav=S.favorites.includes(song.id);const pct=S.duration>0?(S.currentTime/S.duration)*100:0;const repActive=S.repeatMode!=='off';const repIcon=S.repeatMode==='one'?I.rep1:I.repA;return`<div id="np-wrap"><div id="np-ambient"></div>${song.coverArt?`<div class="np-bg-art" style="background-image:url('${esc(song.coverArt)}')"></div>`:''}<div class="np-bg-white"></div><div class="np-inner"><div class="np-topbar"><button class="np-chevron-btn" data-action="go-back">${I.chevL}</button><span class="np-label">Now Playing</span><button class="np-chevron-btn" data-action="navigate" data-screen="queue" style="color:var(--t3)">${I.queue}</button></div><div class="np-art-section"><div class="np-art-box">${song.coverArt?`<img src="${esc(song.coverArt)}" alt="${esc(song.title)}">`:
@@ -330,23 +311,19 @@ function scrArtist(){
     looseSongs=S.songs.filter(s=>s.artistId===artist.id);
   }
   const allSongs=[...looseSongs,...realAlbums.flatMap(a=>a.songs.map(id=>S.library.songs[id]).filter(Boolean))];
-  return`<div style="height:100%;display:flex;flex-direction:column;background:#fff">
-    <div style="position:relative;overflow:hidden;min-height:220px;flex-shrink:0">
-      ${heroCover?`<div style="position:absolute;inset:-30px;background:url('${esc(heroCover)}') center/cover;filter:blur(28px) brightness(.5) saturate(1.4);transform:scale(1.15)"></div>`:'<div style="position:absolute;inset:0;background:linear-gradient(135deg,#1a2535,#0d1b28)"></div>'}
-      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.1) 0%,rgba(0,0,0,.55) 100%)"></div>
-      <button data-action="go-back" style="position:absolute;top:max(env(safe-area-inset-top),14px);left:8px;z-index:10;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;color:#fff;border:none;cursor:pointer">${I.chevL}</button>
-      <div style="position:relative;z-index:1;padding:max(env(safe-area-inset-top),48px) 20px 20px;display:flex;flex-direction:column;gap:10px">
-        <div style="width:88px;height:88px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,.25);box-shadow:0 8px 32px rgba(0,0,0,.4);flex-shrink:0">
-          ${heroCover?`<img src="${esc(heroCover)}" style="width:100%;height:100%;object-fit:cover">`:`<div style="width:100%;height:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;color:#fff">${esc(artist.name.charAt(0))}</div>`}
+  return`<div style="height:100%;display:flex;flex-direction:column;background:var(--bg)">
+    <div style="flex-shrink:0;background:var(--card);border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:12px;padding:max(env(safe-area-inset-top),14px) 14px 14px">
+        <button data-action="go-back" style="width:32px;height:32px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;color:var(--t1);border:none;cursor:pointer;flex-shrink:0">${I.chevL}</button>
+        <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.15)">
+          ${heroCover?`<img src="${esc(heroCover)}" style="width:100%;height:100%;object-fit:cover">`:`<div style="width:100%;height:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff">${esc(artist.name.charAt(0))}</div>`}
         </div>
-        <div>
-          <div style="font-size:26px;font-weight:800;color:#fff;letter-spacing:-.5px;line-height:1.1">${esc(artist.name)}</div>
-          <div style="font-size:13px;color:rgba(255,255,255,.7);margin-top:4px">${realAlbums.length} album${realAlbums.length!==1?'s':''} &nbsp;·&nbsp; ${allSongs.length} song${allSongs.length!==1?'s':''}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:15px;font-weight:700;color:var(--t1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(artist.name)}</div>
+          <div style="font-size:11px;color:var(--t3);margin-top:1px">${realAlbums.length} album${realAlbums.length!==1?"s":""} · ${allSongs.length} song${allSongs.length!==1?"s":""}</div>
         </div>
-        <div style="display:flex;gap:10px;margin-top:4px">
-          <button data-action="play-artist" data-artist-id="${esc(artist.id)}" style="display:flex;align-items:center;gap:8px;padding:10px 22px;border-radius:999px;background:var(--accent);color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(255,111,0,.4)">${I.play} Play</button>
-          <button data-action="shuffle-artist" data-artist-id="${esc(artist.id)}" style="display:flex;align-items:center;gap:8px;padding:10px 22px;border-radius:999px;background:rgba(255,255,255,.18);color:#fff;font-size:14px;font-weight:600;border:1px solid rgba(255,255,255,.3);cursor:pointer;backdrop-filter:blur(8px)">${I.shuf} Shuffle</button>
-        </div>
+        <button data-action="play-artist" data-artist-id="${esc(artist.id)}" style="display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:999px;background:var(--accent);color:#fff;font-size:12px;font-weight:700;border:none;cursor:pointer;flex-shrink:0">${I.play} Play</button>
+        <button data-action="shuffle-artist" data-artist-id="${esc(artist.id)}" style="display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:999px;background:var(--border2);color:var(--t1);font-size:12px;font-weight:600;border:none;cursor:pointer;flex-shrink:0">${I.shuf}</button>
       </div>
     </div>
     <div class="scroll-area" style="background:#f7f7f7">
