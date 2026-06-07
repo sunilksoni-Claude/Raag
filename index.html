@@ -376,13 +376,22 @@ const DB = (() => {
   return {
     async saveSong(id, blob, meta) {
       const db = await open();
-      await rq(db.transaction('songs','readwrite').objectStore('songs').put({ id, blob }));
+      // iOS Safari cannot store File/Blob objects in IndexedDB directly.
+      // Read to ArrayBuffer first — works on all platforms.
+      const buffer = await blob.arrayBuffer();
+      const type = blob.type || guessMime(blob.name || id);
+      await rq(db.transaction('songs','readwrite').objectStore('songs').put({ id, buffer, type }));
       await rq(db.transaction('metadata','readwrite').objectStore('metadata').put({ id, data: meta }));
     },
     async getSongBlob(id) {
       const db = await open();
       const r = await rq(db.transaction('songs','readonly').objectStore('songs').get(id));
-      return r ? URL.createObjectURL(r.blob) : null;
+      if (!r) return null;
+      // Support old blob format (desktop) and new buffer format (iOS-safe)
+      const blob = r.blob
+        ? r.blob
+        : new Blob([r.buffer], { type: r.type || 'audio/mpeg' });
+      return URL.createObjectURL(blob);
     },
     async getAllMetadata() {
       const db = await open();
@@ -449,6 +458,12 @@ function slug(s) {
 }
 function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function guessMime(name) {
+  const ext = String(name).slice(String(name).lastIndexOf('.')).toLowerCase();
+  return ({ '.mp3':'audio/mpeg', '.m4a':'audio/mp4', '.aac':'audio/aac',
+            '.flac':'audio/flac', '.ogg':'audio/ogg', '.opus':'audio/ogg',
+            '.wav':'audio/wav', '.mp4':'audio/mp4' })[ext] || 'audio/mpeg';
 }
 function parseFilename(name) {
   const base = name.replace(/\.[^.]+$/,'');
