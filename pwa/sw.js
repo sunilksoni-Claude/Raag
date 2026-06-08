@@ -1,4 +1,4 @@
-const CACHE = 'raaag-v34';
+const CACHE = 'raaag-v35';
 const SHELL = ['./index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
