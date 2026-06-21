@@ -1,4 +1,4 @@
-const CACHE = 'vibe-v4';
+const CACHE = 'vibe-v5';
 const SHELL = ['./index.html', './manifest.json', './icons/icon-190.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {
