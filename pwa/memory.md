@@ -4,8 +4,8 @@
 A fully working standalone PWA music player (single HTML file, no build step) optimised for iPhone Safari. Started as a broken React/Vite app, now a polished app with professional design.
 
 ## Live URL
-**https://sunilksoni-claude.github.io/Raag/**
-Repo: `https://github.com/sunilksoni-Claude/Raag.git`
+**https://sunilksoni-claude.github.io/Vibe-Player/**
+Repo: `https://github.com/sunilksoni-Claude/Vibe-Player.git`
 GitHub user: `sunilksoni-Claude` (capital C)
 
 ## Current Version
@@ -18,7 +18,7 @@ GitHub user: `sunilksoni-Claude` (capital C)
 | `index.html` | Repo root — what GitHub Pages actually serves (keep in sync!) |
 | `pwa/manifest.json` | PWA manifest |
 | `pwa/sw.js` | Service worker (bump version on every push) |
-| `pwa/icons/Raag 1.png` | Source icon |
+| `pwa/icons/Vibe-Player 1.png` | Source icon |
 | `pwa/icons/icon-192.png` | PWA icon 192px |
 | `pwa/icons/icon-512.png` | PWA icon 512px |
 | `pwa/icons/apple-touch-icon.png` | iPhone home screen icon 180px |
@@ -90,10 +90,10 @@ The repo has TWO locations that must BOTH be updated on every push:
 
 ## Push Instructions (next session)
 ```bash
-# Repo already cloned at /tmp/Raag-fresh with credentials in remote URL
+# Repo already cloned at /tmp/Vibe-Player-fresh with credentials in remote URL
 # If missing, clone fresh:
 TOKEN="YOUR_GITHUB_TOKEN"
-git clone "https://sunilksoni-Claude:${TOKEN}@github.com/sunilksoni-Claude/Raag.git" /tmp/Raag-fresh
+git clone "https://sunilksoni-Claude:${TOKEN}@github.com/sunilksoni-Claude/Vibe-Player.git" /tmp/Vibe-Player-fresh
 
 # After editing pwa/index.html, sync to root and push:
 python3 -c "
@@ -101,13 +101,13 @@ import shutil
 data = open('/sessions/.../mnt/pwa/index.html','rb').read().rstrip(b'\x00')
 html = data.decode()
 assert html.strip().endswith('</html>'), 'TRUNCATED'
-open('/tmp/Raag-fresh/index.html','wb').write(data)
-open('/tmp/Raag-fresh/pwa/index.html','wb').write(data)
-shutil.copy2('/sessions/.../mnt/pwa/sw.js','/tmp/Raag-fresh/sw.js')
-shutil.copy2('/sessions/.../mnt/pwa/sw.js','/tmp/Raag-fresh/pwa/sw.js')
+open('/tmp/Vibe-Player-fresh/index.html','wb').write(data)
+open('/tmp/Vibe-Player-fresh/pwa/index.html','wb').write(data)
+shutil.copy2('/sessions/.../mnt/pwa/sw.js','/tmp/Vibe-Player-fresh/sw.js')
+shutil.copy2('/sessions/.../mnt/pwa/sw.js','/tmp/Vibe-Player-fresh/pwa/sw.js')
 print('OK', len(html)//1024, 'KB')
 "
-cd /tmp/Raag-fresh
+cd /tmp/Vibe-Player-fresh
 git add . && git commit -m "..." && git push origin main
 ```
 
